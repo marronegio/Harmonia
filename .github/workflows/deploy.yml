@@ -1,0 +1,37 @@
+name: Publicar Harmonia via FTP
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harmonia-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://harmonia.gmarrone.com.br
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Validar JavaScript
+        run: |
+          for file in dist/*.js; do node --check "$file"; done
+      - name: Publicar por FTP com TLS
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          # Nome do certificado TLS apresentado pela hospedagem.
+          FTP_TLS_SERVER_NAME: br.brasil129-7551.com.br
+        run: python3 scripts/deploy_ftp.py

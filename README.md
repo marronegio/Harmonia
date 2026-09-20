@@ -44,4 +44,16 @@ As posições dos acordes são calculadas para conter as notas indicadas e respe
 
 Hospede o conteúdo de `dist/` em um serviço de arquivos estáticos. O app não usa servidor de aplicação, banco de dados ou chaves de API. As fontes são carregadas do Google Fonts, com fontes locais alternativas.
 
-Versão hospedada: https://harmonia-giova-0920.giovannemarrone.chatgpt.site (acesso privado).
+Site: https://harmonia.gmarrone.com.br
+
+### Publicação automática com GitHub Actions
+
+Cada push na branch `main` executa `.github/workflows/deploy.yml`, valida o JavaScript e envia o conteúdo de `dist/` por FTP com TLS. Também é possível iniciar uma publicação manual em Actions → Publicar Harmonia via FTP → Run workflow.
+
+Secrets necessários em Settings → Secrets and variables → Actions:
+
+- `FTP_HOST`: servidor FTP.
+- `FTP_USER`: usuário da conta restrita ao diretório do app.
+- `FTP_PASSWORD`: senha FTP.
+
+O destino é a raiz da conta FTP (`/`), que corresponde ao diretório do subdomínio. O certificado TLS é validado usando o nome configurado em `FTP_TLS_SERVER_NAME` no workflow. As credenciais nunca são incluídas no código. Arquivos de configuração existentes na hospedagem são preservados. Cada arquivo é enviado temporariamente e renomeado após conferir o tamanho; `index.html` é publicado por último.
